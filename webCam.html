@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>WebCam Test</title>
+
+	<style type="text/css">
+		div{
+			width: 200px;
+			height: 200px;
+			box-shadow: 20px 20px 20px rgba(0,0,0,.5) ;
+			border: 1px solid red;
+		}
+	</style>
+</head>
+<body>
+
+	<div></div>
+
+	<video id="video" autoplay></video>
+
+	<script type="text/javascript">
+		let v = document.querySelector('video')
+		let constraints = {audio: false, video: true}
+
+		/*navigator.mediaDevices.getUserMedia(constraints).then((vstream)=>{
+			v.srcObject = vstream
+		})*/
+
+	</script>
+
+</body>
+</html>
