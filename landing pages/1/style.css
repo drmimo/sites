@@ -1,1 +1,119 @@
+*{
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
 
+body{
+	height: 100vh;
+	padding: 20px;
+	background-color: #262640;
+	font-family: Arial;
+}
+
+body::after{
+	content: '';
+	width: 200%;
+	height: 200%;
+	position: absolute;
+	background-color: #373751;
+	top: 0;
+	right: 10%;
+	transform: rotate(30deg);
+	z-index: -1;
+}
+
+header{
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+header .logo{
+	background-image: url(logo.svg);
+	background-size: contain;
+	background-repeat: no-repeat;
+	width: 80pt;
+	height: 80pt;
+}
+
+header nav ul{
+	list-style: none;
+	display: flex;
+}
+
+header nav ul a{
+	position: relative;
+	margin: 0 15px;
+	text-decoration: none;
+	color: #a6a6bf;
+	font-weight: bolder;
+	padding: 10px;
+}
+
+header nav ul a.active::after{
+	position: absolute;
+	bottom: -5px;
+	left: 0;
+	content: '';
+	height: 5px;
+	width: 100%;
+	background-color: #00aced;
+	border-radius: 5px;
+	/*z-index: 5;*/
+}
+
+header nav ul a.active{
+	color: white;
+}
+
+main{
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	padding: 100px;
+}
+
+main > *{
+	margin: 0 40px;
+}
+
+.illustration{
+	height: 200pt;
+	width: 200pt;
+	background-image: url(illustration.svg);
+	background-size: contain;
+	background-repeat: no-repeat;
+}
+
+main .txt{
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: flex-start;
+	height: 200pt;
+	color: #ccc;
+}
+
+.txt .tag{
+	color: #50aace;
+	font-weight: bold;
+	padding: 6pt 10pt;
+	text-transform: uppercase;
+	font-size: 8pt;
+	border-radius: 14pt;
+	background-color: #374468;
+	/*width: 150px;*/
+	display: inline;
+	text-align: center;
+}
+
+.txt .signBtn{
+	font-size: 10pt;
+	background-image: linear-gradient(45deg, orange, #ff0576);
+	color: white;
+	padding: 10pt 20pt;
+	border-radius: 20px;
+	font-weight: normal;
+	text-transform: uppercase;
+}
