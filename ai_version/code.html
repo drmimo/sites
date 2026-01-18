@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+
+<html class="" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Responsive Smart Resizer Tool</title>
+    <script src="./js/tailwindcss.js?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        body { font-family: 'Space Grotesk', sans-serif; }
+        .canvas-grid {
+            background-image: radial-gradient(#233648 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .comparison-slider {
+            position: relative;
+            overflow: hidden;
+        }
+        .handle {
+            width: 4px;
+            height: 100%;
+            background: #137fec;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        @media (max-width: 1023px) {
+            .preview-carousel {
+                display: flex;
+                overflow-x: auto;
+                scroll-snap-type: x mandatory;
+                gap: 1rem;
+                padding-bottom: 1rem;
+            }
+            .preview-item {
+                flex: 0 0 85%;
+                scroll-snap-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+    <header
+        class="flex items-center justify-between border-b border-solid border-slate-200 dark:border-[#233648] px-4 md:px-6 py-4 bg-background-light dark:bg-background-dark sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div class="size-10 bg-primary rounded-lg flex items-center justify-center text-white shrink-0">
+                <span class="material-symbols-outlined">aspect_ratio</span>
+            </div>
+            <div class="flex flex-col">
+                <h2 class="text-lg md:text-xl font-bold leading-tight tracking-tight">Responsive Resizer</h2>
+                <div class="flex items-center gap-1.5">
+                    <span class="size-2 rounded-full bg-blue-500"></span>
+                    <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500">Local Processing</span>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <nav class="hidden lg:flex items-center gap-6 mr-4">
+                <a class="text-sm font-medium hover:text-primary transition-colors" href="#">Templates</a>
+                <a class="text-sm font-medium hover:text-primary transition-colors" href="#">Batch Edit</a>
+            </nav>
+            <button
+                class="hidden sm:flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-5 bg-primary text-white text-sm font-bold transition-all hover:bg-primary/90">
+                <span>Upgrade</span>
+            </button>
+            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-slate-200 dark:border-[#233648]"
+                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAwIdaFXeUY9aZopH74rklvOOvdJZ1y38KKso-vpLw-sHVjf08MScrCGWK5LrHH8K85fDbXVObTZAeZWBsX4JOrznjcOOLzs8R8qgS9ut5GitTPlcnDkjbz19idZTnElKQU4RfpwKL40UPYFdMRcOpWxrm9LaMQJkMURhj2Bim1GrSJ72tRdrQYoebUpAc9jgqDmyF9JCti1HlgUqDZjoUsrcQBXmMnTEKPOeLLNzicSd3ehWMUP3xzlBdlqkmiUoA1sfcF4ZO56k4");'>
+            </div>
+        </div>
+    </header>
+    <main class="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
+        <aside
+            class="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-[#233648] flex flex-col bg-background-light dark:bg-background-dark overflow-y-auto order-2 lg:order-1">
+            <div class="p-5 flex flex-col gap-8">
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Size Presets</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button
+                            class="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-100 dark:bg-[#1a2632] border border-transparent hover:border-primary transition-all group">
+                            <span
+                                class="material-symbols-outlined text-2xl text-slate-500 group-hover:text-primary">photo_camera</span>
+                            <span class="text-xs font-semibold">Social Post</span>
+                        </button>
+                        <button
+                            class="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-100 dark:bg-[#1a2632] border border-transparent hover:border-primary transition-all group">
+                            <span
+                                class="material-symbols-outlined text-2xl text-slate-500 group-hover:text-primary">play_circle</span>
+                            <span class="text-xs font-semibold">Video</span>
+                        </button>
+                        <button
+                            class="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-100 dark:bg-[#1a2632] border border-transparent hover:border-primary transition-all group">
+                            <span
+                                class="material-symbols-outlined text-2xl text-slate-500 group-hover:text-primary">web</span>
+                            <span class="text-xs font-semibold">Header</span>
+                        </button>
+                        <button
+                            class="flex flex-col items-center gap-2 p-4 rounded-xl bg-primary/10 border border-primary text-primary transition-all">
+                            <span class="material-symbols-outlined text-2xl">crop_original</span>
+                            <span class="text-xs font-semibold">Custom</span>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Dimensions</h3>
+                    <div class="space-y-4">
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <label class="text-[10px] font-bold text-slate-400 block mb-2 uppercase">Width</label>
+                                <input
+                                    class="w-full h-12 bg-slate-100 dark:bg-[#1a2632] border-none rounded-lg text-base px-4 focus:ring-2 focus:ring-primary"
+                                    type="number" value="1920" />
+                            </div>
+                            <div class="flex-1">
+                                <label class="text-[10px] font-bold text-slate-400 block mb-2 uppercase">Height</label>
+                                <input
+                                    class="w-full h-12 bg-slate-100 dark:bg-[#1a2632] border-none rounded-lg text-base px-4 focus:ring-2 focus:ring-primary"
+                                    type="number" value="1080" />
+                            </div>
+                        </div>
+                        <div
+                            class="flex items-center justify-between p-4 rounded-xl bg-slate-100 dark:bg-[#1a2632] cursor-pointer hover:bg-slate-200 dark:hover:bg-[#233648] transition-colors">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-slate-500">link</span>
+                                <span class="text-sm font-semibold">Keep Ratio</span>
+                            </div>
+                            <input checked="" class="rounded-md w-6 h-6 text-primary focus:ring-primary cursor-pointer"
+                                type="checkbox" />
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden lg:block pt-6 border-t border-slate-200 dark:border-[#233648]">
+                    <button
+                        class="w-full flex items-center justify-center gap-2 h-12 bg-slate-200 dark:bg-[#233648] hover:bg-red-500/20 hover:text-red-500 rounded-xl text-sm font-bold transition-all">
+                        <span class="material-symbols-outlined">delete</span>
+                        Clear Canvas
+                    </button>
+                </div>
+            </div>
+        </aside>
+        <section class="flex-1 flex flex-col bg-slate-50 dark:bg-[#0b1219] order-1 lg:order-2 min-h-[400px]">
+            <div
+                class="flex flex-wrap items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-[#233648] bg-background-light dark:bg-background-dark gap-3">
+                <div class="flex items-center gap-1 overflow-x-auto no-scrollbar">
+                    <button class="p-3 hover:bg-slate-200 dark:hover:bg-[#233648] rounded-xl transition-colors"
+                        title="Crop">
+                        <span class="material-symbols-outlined">crop</span>
+                    </button>
+                    <button class="p-3 hover:bg-slate-200 dark:hover:bg-[#233648] rounded-xl transition-colors"
+                        title="Rotate">
+                        <span class="material-symbols-outlined">rotate_right</span>
+                    </button>
+                    <button class="p-3 hover:bg-slate-200 dark:hover:bg-[#233648] rounded-xl transition-colors"
+                        title="Flip">
+                        <span class="material-symbols-outlined">flip</span>
+                    </button>
+                    <div class="w-px h-8 bg-slate-200 dark:bg-[#233648] mx-2 hidden sm:block"></div>
+                    <button class="p-3 hover:bg-slate-200 dark:hover:bg-[#233648] rounded-xl transition-colors"
+                        title="Zoom In">
+                        <span class="material-symbols-outlined">zoom_in</span>
+                    </button>
+                    <span class="text-sm font-mono text-slate-500 px-3 hidden sm:inline">75%</span>
+                    <button class="p-3 hover:bg-slate-200 dark:hover:bg-[#233648] rounded-xl transition-colors"
+                        title="Zoom Out">
+                        <span class="material-symbols-outlined">zoom_out</span>
+                    </button>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button
+                        class="flex-1 sm:flex-none flex items-center justify-center gap-2 h-11 px-6 rounded-xl bg-slate-200 dark:bg-[#233648] text-sm font-bold hover:brightness-110 transition-all">
+                        Reset
+                    </button>
+                    <button
+                        class="flex-1 sm:flex-none flex items-center justify-center gap-2 h-11 px-6 rounded-xl bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:brightness-110 transition-all">
+                        <span class="material-symbols-outlined text-lg">download</span>
+                        Export
+                    </button>
+                </div>
+            </div>
+            <div class="flex-1 relative overflow-hidden flex items-center justify-center p-4 md:p-12 canvas-grid">
+                <div
+                    class="relative w-full max-w-3xl aspect-video bg-white rounded-lg shadow-2xl overflow-hidden group">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 scale-105"
+                        style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAPdy2Tgkwzqj_zhAOehNWiVwUMP8UtueA_N-br46SXEW0Ha-4a5gpPhiP7VXi5d2unIcIRIa4fuNCgKLE3BuGwNUtQHH9zR0m2Q82XTj3tBmh5D_AxoCyqnaFWpRHnJ8sQ8wgSV9FCb1a1jTXnwqVjZZLedxW-e8HJib10cantS6SgIoqryP25CkDmuqLKoUEq9Sa6fmIxvZwmm3959mM0MtJuoxHb8ZK-ZNYXZBUZy87sUygfrl4EBm8KRYWk1-7F3f1h4o07sqc");'>
+                    </div>
+                    <div class="absolute inset-0 bg-black/40"></div>
+                    <div
+                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] border-2 border-primary ring-[2000px] ring-black/50">
+                        <div
+                            class="absolute -top-3 -left-3 size-6 bg-white border-2 border-primary rounded-full cursor-nw-resize">
+                        </div>
+                        <div
+                            class="absolute -top-3 -right-3 size-6 bg-white border-2 border-primary rounded-full cursor-ne-resize">
+                        </div>
+                        <div
+                            class="absolute -bottom-3 -left-3 size-6 bg-white border-2 border-primary rounded-full cursor-sw-resize">
+                        </div>
+                        <div
+                            class="absolute -bottom-3 -right-3 size-6 bg-white border-2 border-primary rounded-full cursor-se-resize">
+                        </div>
+                        <div class="absolute top-1/3 left-0 w-full h-px bg-white/30"></div>
+                        <div class="absolute top-2/3 left-0 w-full h-px bg-white/30"></div>
+                        <div class="absolute left-1/3 top-0 h-full w-px bg-white/30"></div>
+                        <div class="absolute left-2/3 top-0 h-full w-px bg-white/30"></div>
+                        <div
+                            class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-primary/90 text-white text-[11px] px-3 py-1.5 rounded-full font-bold shadow-lg">
+                            1440 × 810
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <aside
+            class="w-full lg:w-80 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-[#233648] flex flex-col bg-background-light dark:bg-background-dark order-3">
+            <div class="p-5 flex flex-col">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-6">Live Previews</h3>
+                <div class="preview-carousel lg:space-y-8">
+                    <div class="preview-item mb-2">
+                        <div class="flex items-center justify-between mb-3 px-1">
+                            <span class="text-[10px] font-bold text-slate-400">DESKTOP (16:9)</span>
+                            <span class="material-symbols-outlined text-lg text-slate-500">desktop_windows</span>
+                        </div>
+                        <div
+                            class="aspect-video w-full rounded-xl bg-slate-200 dark:bg-[#1a2632] overflow-hidden border border-slate-200 dark:border-[#233648]">
+                            <div class="w-full h-full bg-cover bg-center"
+                                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDKNFnTug8g2fXnn7PzX6crtC76NIdIeUYNJdtLmLhnOTLouKcdBearmgy9W0iiFRJIFZ3lYprnzwcirfOkxAMH2SeGickuhLgBHlM1LSVb8puK4tsGqOF6m6EtnFgQTTgaGdnHpMJV2h9w2I6qPdM-1WjaBFFIXgTKQYT6P-VOa6hFO7YH5C7Xo-HjuSFPRUEvNH5W5cTPvw05eqXTtM2z24M_aP4cO2xlr4u03SV696Z0DEO6M3IsGCcWHpAmtZgeZRSzVAfnKoU");'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="preview-item mb-2">
+                        <div class="flex items-center justify-between mb-3 px-1">
+                            <span class="text-[10px] font-bold text-slate-400">TABLET (4:3)</span>
+                            <span class="material-symbols-outlined text-lg text-slate-500">tablet_mac</span>
+                        </div>
+                        <div
+                            class="aspect-[4/3] w-full max-w-[200px] lg:max-w-none mx-auto rounded-xl bg-slate-200 dark:bg-[#1a2632] overflow-hidden border border-slate-200 dark:border-[#233648]">
+                            <div class="w-full h-full bg-cover bg-center"
+                                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC_ef701lHp3N_1yBDKC4UGEtau8cIwPBFIS5WE8RERX3fGdGaav3Y8ktKk3Jr01rbgV4YFLa6eTNyu7aPPJJEEK5k6QfYB8-bY-29idVqFtg_cfQzeN0aRakqljbxrgVmTSQV1GGQLq5PHk2VRPJthtPXcdt8akyKNSYG2sb6M0ribFW4yTj28wP-VQ5jqofCYYjvQdM6Uv20-e_GN5oB88qqQkj2anRx3hnTL0FvbBFv_gVv5KjsS9iUYnuKnmSSKt-YdYG9FHro");'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="flex items-center justify-between mb-3 px-1">
+                            <span class="text-[10px] font-bold text-slate-400">MOBILE (9:16)</span>
+                            <span class="material-symbols-outlined text-lg text-slate-500">smartphone</span>
+                        </div>
+                        <div
+                            class="aspect-[9/16] w-full max-w-[140px] lg:max-w-[160px] mx-auto rounded-xl bg-slate-200 dark:bg-[#1a2632] overflow-hidden border border-slate-200 dark:border-[#233648]">
+                            <div class="w-full h-full bg-cover bg-center"
+                                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAI5p5EBClAOXbxJlrR6vdpaN7BfsoqMTKp4YeCH7ybCfYCOWuE-PGkMaRK48DPEl-0DI-RCbgHnJ_0NpDcJeOR8vhymATvoyGwVWPfl-EhIIMgA9mh59u5cDqC0h7EzVbVA84bohHWJ1ToO8ZQpSvqz9tgqDA9mZhAMyxtBhgScOOydi_jleKYgJ342ek-rvlOJSeklVxQcG61TpaZXurTOh9mSTS9SKy-tEJwT0l5gBkgs66OzNN5OpufrOshBj0C2Bw4KkpD76M");'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+    <footer class="bg-slate-50 dark:bg-[#0d161f] border-t border-slate-200 dark:border-[#233648] py-16">
+        <div class="max-w-[1280px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16">
+            <div class="space-y-8">
+                <div>
+                    <h2 class="text-2xl font-bold mb-4">Resizing Best Practices</h2>
+                    <p class="text-slate-500 text-base leading-relaxed">Choosing the right interpolation method is key
+                        to maintaining image clarity. While <b>Bilinear</b> is faster for real-time resizing,
+                        <b>Bicubic</b> provides smoother gradients and better edge definition for final exports.</p>
+                </div>
+                <div
+                    class="comparison-slider aspect-video w-full rounded-2xl bg-black overflow-hidden group border border-slate-200 dark:border-[#233648] shadow-lg">
+                    <div class="absolute inset-0 flex">
+                        <div class="w-1/2 h-full bg-cover grayscale"
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDj2HyUP6aY2zJxEzyVlBbraotHvra1JqJia4cKrLhxVP5EpXg8cPmpgir1sQ0Uyhf_fK-vXUvTLzCDnaa6-U55ZBqtjtetT2XufN6hJXsa0AWsNPcQ0z3_AtSKAuAurHrFbyIO1ZPaG3XoNU3YPwzG-_9c7y-KCYUoWhMLjGMjUBVLlLPPsjv_KlqwwtCY2opnuWhOasd0drhgrfvdiuafZz8cH1PXPLnota2-9eNUGNqY94Ck_t6jr5TNj3rNhnQsziT8okjc1H4");'>
+                        </div>
+                        <div class="w-1/2 h-full bg-cover"
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAMv3Lk2VxW8hTrRjUzgSyVN2E0IDR2rmSULezRUYZKTse_pC_yzXN926SVD4D-aLwKpOth_BTx5ZFK7koREXr-t-n6iOmQBtktD_6xbOCHdxtq9__45zYiLg7ZRKA0pfyj_dTS9QzWbLy9BrNoBFcoPt7DHpaeFoLcgrRh72l5iADXaVsNbLNB_uz6521tzZNbQWRWGWidCtFpOHE6DpSx_sNflU87NGDFNsrMTAQ3Z3iip-u8pn6xKBWpuSbu2cMzLGfJqPBY-nQ");'>
+                        </div>
+                    </div>
+                    <div class="handle">
+                        <div
+                            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-10 bg-primary rounded-full flex items-center justify-center text-white shadow-2xl">
+                            <span class="material-symbols-outlined">unfold_more</span>
+                        </div>
+                    </div>
+                    <div
+                        class="absolute bottom-6 left-6 px-3 py-1.5 bg-black/70 text-[11px] text-white font-bold rounded-lg uppercase tracking-wider">
+                        Bilinear</div>
+                    <div
+                        class="absolute bottom-6 right-6 px-3 py-1.5 bg-primary/90 text-[11px] text-white font-bold rounded-lg uppercase tracking-wider">
+                        Bicubic</div>
+                </div>
+            </div>
+            <div
+                class="bg-white dark:bg-[#1a2632] rounded-3xl p-8 md:p-12 border border-slate-200 dark:border-[#233648] flex flex-col justify-center shadow-xl">
+                <div class="size-16 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 mb-8">
+                    <span class="material-symbols-outlined text-4xl">verified_user</span>
+                </div>
+                <h3 class="text-3xl font-bold mb-6">Private &amp; Fast</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-lg leading-relaxed mb-8">
+                    Your privacy is our priority. This tool processes every image <b>entirely within your browser</b>.
+                    No files are uploaded to our servers, ensuring your data remains private and processing happens
+                    instantly.
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div
+                        class="p-4 rounded-xl bg-slate-50 dark:bg-[#233648]/50 border border-slate-100 dark:border-[#233648]">
+                        <span class="text-primary font-bold text-2xl block">Local</span>
+                        <span class="text-[11px] text-slate-500 uppercase font-bold tracking-tight">Processing</span>
+                    </div>
+                    <div
+                        class="p-4 rounded-xl bg-slate-50 dark:bg-[#233648]/50 border border-slate-100 dark:border-[#233648]">
+                        <span class="text-primary font-bold text-2xl block">100%</span>
+                        <span class="text-[11px] text-slate-500 uppercase font-bold tracking-tight">Private</span>
+                    </div>
+                    <div
+                        class="p-4 rounded-xl bg-slate-50 dark:bg-[#233648]/50 border border-slate-100 dark:border-[#233648]">
+                        <span class="text-primary font-bold text-2xl block">Instant</span>
+                        <span class="text-[11px] text-slate-500 uppercase font-bold tracking-tight">Performance</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div
+            class="max-w-[1280px] mx-auto px-6 mt-16 pt-10 border-t border-slate-200 dark:border-[#233648] flex flex-col md:flex-row gap-6 justify-between items-center text-sm text-slate-500 font-medium">
+            <p>© 2024 Responsive Resizer Tool. Client-side secure processing.</p>
+            <div class="flex gap-8">
+                <a class="hover:text-primary transition-colors" href="#">Privacy</a>
+                <a class="hover:text-primary transition-colors" href="#">Terms</a>
+                <a class="hover:text-primary transition-colors" href="#">Support</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
