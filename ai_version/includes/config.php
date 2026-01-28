@@ -1,6 +1,6 @@
 <?php
 
-    define("BASE_URL", "/stitch_version");
+    define("BASE_URL", "/ai_version");
 
 
 ?>

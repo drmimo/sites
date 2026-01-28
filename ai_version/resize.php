@@ -89,9 +89,9 @@
                                 <input class="absolute inset-0 opacity-0 cursor-pointer" multiple="multiple" type="file" accept="image/*" id="fileInput" onChange="showUploaded(this)"/>
                             </div>
 
-                            <div class="flex flex-col items-center bg-gray py-2 px-4 rounded-2xl border mt-6">
+                            <div class="flex flex-col gap-4 items-center bg-gray py-2 px-4 rounded-xl border mt-6">
                                 <h3>Uploaded images [<span id="imgCounter">0</span>] file(s):</h3>
-                                <ul class=" bg-gray-100 self-stretch" id="uploadedImg">
+                                <ul class="bg-white self-stretch px-3 py-2" id="uploadedImg">
 
                                 </ul>
                             </div>
@@ -107,18 +107,21 @@
                                             <label class="text-xs font-semibold text-gray-500 uppercase">Width (px)</label>
                                             <input
                                                 class="w-full px-4 py-2 rounded-lg border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-background-dark text-sm focus:ring-primary"
-                                                type="number" value="1920" />
+                                                id="width"
+                                                type="number" value="1080" min="10"/>
                                         </div>
                                         <div class="space-y-1">
                                             <label class="text-xs font-semibold text-gray-500 uppercase">Height (px)</label>
                                             <input
                                                 class="w-full px-4 py-2 rounded-lg border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-background-dark text-sm focus:ring-primary"
-                                                type="number" value="1080" />
+                                                id="height"
+                                                type="number" value="720" min="10"/>
                                         </div>
                                     </div>
                                     <label class="flex items-center gap-2 cursor-pointer">
                                         <input checked=""
                                             class="rounded text-primary focus:ring-primary border-gray-300"
+                                            id="lockedAscpectRatio"
                                             type="checkbox" />
                                         <span class="text-sm text-gray-600 dark:text-gray-400">Lock Aspect Ratio</span>
                                     </label>
@@ -132,20 +135,41 @@
                                         <div class="space-y-1 col-span-2">
                                             <label class="text-xs font-semibold text-gray-500 uppercase">Format</label>
                                             <select
+                                                id="format"
                                                 class="w-full rounded-lg px-4 py-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-background-dark text-sm focus:ring-primary">
-                                                <option>Match Original</option>
-                                                <option>JPG</option>
-                                                <option>PNG</option>
-                                                <option>WebP</option>
+                                                <option value="">Match Original</option>
+                                                <option value="jpeg">JPG</option>
+                                                <option vlaue="png">PNG</option>
+                                                <option value="webp">WebP</option>
                                             </select>
                                         </div>
                                     </div>
-                                    <button
-                                        class="w-full h-11 flex items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-bold text-white shadow-sm hover:bg-primary-dark transition-all mt-4">
+
+                                    <div class="text-xs font-semibold text-gray-500 uppercase">Progress:</div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2 border-1" id="progressBar">
+                                        <div class="bg-green-500 h-2 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                    <button 
+                                    type="button" 
+                                    class="text-fg-disabled bg-disabled w-full h-11 flex items-center justify-center gap-2 rounded-lg box-border border border-default-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 cursor-pointer focus:outline-none" 
+                                    disabled
+                                    id="processBtn"
+                                    onClick="processAndDownload()">
                                         <span class="material-symbols-outlined">download</span>
                                         Process &amp; Download
                                     </button>
+                                    <!--button disabled
+                                        class="w-full h-11 flex items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-bold text-white shadow-sm hover:bg-primary-dark transition-all mt-4">
+                                        <span class="material-symbols-outlined">download</span>
+                                        Process &amp; Download
+                                    </button-->
                                 </div>
+                            </div>
+                            <div class="flex flex-col justify-center bg-gray py-2 px-4 rounded-xl border mt-6">
+                                <h3>Result images:</h3>
+                                <ul class="w-full flex flex-col gap-2" id="resultedImages">
+
+                                </ul>
                             </div>
                         </div>
                         <aside class="mt-12 lg:mt-0 lg:col-span-4 space-y-8">
@@ -214,17 +238,193 @@
 
     </div>
 <script defer>
-    //let fileIn = document.querySelector("#fileInput")
+    let filesToResize = [];
+    let resultedImagesArray = [];
+    let progress = 0.0;
     const uploadedFiles = document.querySelector('#uploadedImg')
-    function showUploaded(a){
-        let counter = document.querySelector("#imgCounter")
-        counter.innerText = a.files.length
-        for (const file of a.files){
-            let li = document.createElement('li')
-            li.innerText = file.name
-            uploadedFiles.appendChild(li)
-        }
+    let counter = document.querySelector("#imgCounter")
+    const processButton = document.querySelector("#processBtn")
+    const resultedImages = document.querySelector('#resultedImages')
+    const progressBar = document.querySelector("#progressBar > div")
+
+function updateCounter(){
+    console.log(`There are ${filesToResize.length} File(s).`)
+    counter.innerText = filesToResize.length
+    if(filesToResize.length >= 1){
+        processButton.disabled = false
+        processButton.classList.add("bg-primary", "text-white", "hover:bg-primary-dark");
+    }else{
+        processButton.disabled = true
+        processButton.classList.remove('bg-primary', "text-white", "hover:bg-primary-dark")
+        processButton.classList.add("bg-disabled", "text-fg-disabled")
     }
+
+}
+
+function redrawElement(el){
+    el.innerHTML = "";
+}
+
+
+/*----------------------Resize Then download--------------------------*/
+function processAndDownload(){
+    console.log("CLICKED!!!")
+    
+    for(let file of filesToResize){
+        handleImageResizeAndDownload(file);
+        console.log(progress*100+"%")
+        progress += (1 / filesToResize.length)
+        progressBar.style.width = (progress * 100) + "%"
+    }
+    uploadedFiles.parentNode.remove()
+    filesToResize = []
+    updateCounter()
+}
+
+/*------------------Show Uploaded Images-----------------------------*/
+function showUploaded(a){
+
+    filesToResize = filesToResize.concat(Array.from(a.files))
+    updateCounter()
+    redrawElement(uploadedFiles)
+
+    for (const file of filesToResize){
+        let li = document.createElement('li')
+        li.classList.add("fileItem", "py-2", "px-4", "my-2", "bg-gray-100", "rounded-md", "flex", "items-center", "gap-2", "relative")
+        
+        let img = document.createElement('img')
+        img.src = URL.createObjectURL(file)
+        img.style.height = "60px"
+        img.style.width = "auto"
+
+        let fileName = document.createElement('span')
+        fileName.innerText = file.name
+
+        let closeBtn = document.createElement('div')
+        closeBtn.innerText = "✖"
+        closeBtn.classList.add("h-7",  "w-7", "rounded-full", "bg-red-500", "hover:bg-red-700", "text-white", "absolute", "flex", "justify-center", "items-center", "right-4", "cursor-pointer")
+        closeBtn.onclick = function(ev){
+            ev.target.parentNode.remove()
+            //filesToResize.splice(filesToResize.indexOf(ev.target), 1)
+            //console.log(`You deleted ${file.name} File in the index ${filesToResize.indexOf(file)}`)
+            filesToResize.splice(filesToResize.indexOf(file), 1)
+            console.log(filesToResize)
+            updateCounter()
+        }
+
+        li.appendChild(img)
+        li.appendChild(fileName)
+        li.appendChild(closeBtn)
+
+        uploadedFiles.appendChild(li)
+    }
+}
+
+/** 1. Convert a File object to a DataURL string */
+const fileToDataURL = (file) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+};
+
+/** 2. Convert a DataURL to an HTMLImageElement */
+const loadImage = (url) => {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = url;
+    });
+};
+
+/** 3. Pure Logic: Calculate new dimensions while maintaining aspect ratio */
+const calculateDimensions = (originalWidth, originalHeight, targetWidth, targetHeight) => {
+    // 1. Determine the scale factor for both width and height
+    const widthRatio = targetWidth / originalWidth;
+    const heightRatio = targetHeight / originalHeight;
+
+    // 2. Use the smaller ratio to ensure the image fits within the "box" 
+    // without overflowing or distorting the aspect ratio.
+    const ratio = Math.min(widthRatio, heightRatio);
+
+    return {
+        width: Math.round(originalWidth * ratio),
+        height: Math.round(originalHeight * ratio)
+    };
+};
+
+/** 4. Draw image to a canvas and export as DataURL */
+const getResizedCanvasData = (img, width, height, format = 'image/jpeg', quality = 0.9) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, width, height);
+    console.log(`The targeted format is : ${format}`)
+    return canvas.toDataURL(format, quality);
+};
+
+/** 5. Trigger a browser download */
+const triggerDownload = (dataUrl, filename) => {
+    const item = document.createElement('li')
+    const img = document.createElement('img')
+    const span = document.createElement('span')
+    const link = document.createElement('a');
+
+    img.src = dataUrl
+    img.style.height = "60px"
+    img.style.width = "auto"
+
+    span.innerText = filename
+    span.classList.add("text-sm", "flex-1")
+
+    //link.style.display = "block"
+    link.classList.add("size-8", "rounded-full", "text-white", "bg-primary", "flex", "justify-center", "items-center", "hover:bg-primary-dark")
+    link.innerHTML = '<span class="material-symbols-outlined">download</span>'
+    link.href = dataUrl;
+    link.download = filename;
+    //link.click();
+    item.classList.add("flex", "items-center", "gap-4", "bg-gray-100", "py-2", "px-4", "rounded-md")
+    item.appendChild(img)
+    item.appendChild(span)
+    item.appendChild(link)
+
+    resultedImages.appendChild(item)
+};
+
+ async function handleImageResizeAndDownload(file) {
+    try {
+        // Step 1: File -> DataURL
+        const imageDataUrl = await fileToDataURL(file);
+        
+        // Step 2: DataURL -> Image Object
+        const img = await loadImage(imageDataUrl);
+        
+        // Step 3: Math (Dimensions)
+        let selectedHeight = document.querySelector("#height").value;
+        let selectedWidth = document.querySelector("#width").value;
+        let selectedFormat = document.querySelector("#format").value;
+        alert('YOu selected (format): '+selectedFormat)
+        alert(`Your file's type: ${file.type}`)
+
+        const { width, height } = calculateDimensions(img.width, img.height, selectedWidth, selectedHeight);
+        
+        // Step 4: Canvas Processing
+        const targetFormat = selectedFormat == "" ? file.type : selectedFormat;
+        const resizedDataUrl = getResizedCanvasData(img, width, height, targetFormat);
+                
+        
+        // Step 5: Download
+        const filename = 'resized-' +file.name.substring(0, file.name.lastIndexOf('.'))+'.'+targetFormat.substring(targetFormat.indexOf('/')+1, targetFormat.length);
+        triggerDownload(resizedDataUrl, filename);
+        
+    } catch (error) {
+        console.error("Image processing failed:", error);
+    }
+}
 </script>
 </body>
 

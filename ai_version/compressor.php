@@ -99,9 +99,19 @@
                 class="flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-blue-600 transition-colors">
                 <span class="truncate">Select Image</span>
               </button>
-              <input class="absolute inset-0 opacity-0 cursor-pointer" multiple="multiple" type="file" accept="image/*" />
+              <input class="absolute inset-0 opacity-0 cursor-pointer" multiple="multiple" type="file" accept="image/*" id="filesInput"/>
             </div>
           </div>
+          <!-- Uploaded images will be shown here on the stage -->
+           <div class="border-t border-[#e7edf3] dark:border-slate-800 p-8 space-y-8">
+            <h3 class="text-[#0d141b] dark:text-white text-lg font-bold mb-4 flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary" data-icon="tune">image</span>
+              Uploaded Images
+            </h3>
+            <ul id="uploadedFilesList" class="bg-gray-100 py-4 px-4 rounded-md">
+
+            </ul> 
+           </div>
           <!-- Tool Settings & Preview (Active State Simulation) -->
           <div class="border-t border-[#e7edf3] dark:border-slate-800 p-8 space-y-8">
             <div>
@@ -109,24 +119,27 @@
                 <span class="material-symbols-outlined text-primary" data-icon="tune">tune</span>
                 Compression Strength
               </h3>
-              <div class="grid grid-cols-3 gap-4">
+              <div class="grid grid-cols-3 gap-4 buttons-group compressionLevels">
                 <button
+                  data-value="0.9"
                   class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-[#e7edf3] dark:border-slate-800 hover:border-primary/30 transition-all text-center">
-                  <span class="text-sm font-bold text-[#0d141b] dark:text-white">Lossless</span>
-                  <span class="text-xs text-[#4c739a]">Zero quality loss</span>
+                  <span class="btnTitle text-sm font-bold text-[#0d141b] dark:text-white">Lossless</span>
+                  <span class="btnDescription text-xs text-[#4c739a]">Zero quality loss</span>
                 </button>
                 <button
-                  class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-primary bg-primary/5 dark:bg-primary/10 text-center relative">
+                  data-value="0.75"
+                  class="chosen flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-primary bg-primary/5 dark:bg-primary/10 text-center relative">
                   <span
                     class="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Best
                     Value</span>
-                  <span class="text-sm font-bold text-primary">Recommended</span>
-                  <span class="text-xs text-primary/80">Great balance</span>
+                  <span class="btnTitle text-sm font-bold text-primary">Recommended</span>
+                  <span class="btnDescription text-xs text-primary/80">Great balance</span>
                 </button>
                 <button
+                  data-value="0.5"
                   class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-[#e7edf3] dark:border-slate-800 hover:border-primary/30 transition-all text-center">
-                  <span class="text-sm font-bold text-[#0d141b] dark:text-white">Maximum</span>
-                  <span class="text-xs text-[#4c739a]">Smallest file size</span>
+                  <span class="btnTitle text-sm font-bold text-[#0d141b] dark:text-white">Maximum</span>
+                  <span class="btnDescription text-xs text-[#4c739a]">Smallest file size</span>
                 </button>
               </div>
             </div>
@@ -145,6 +158,16 @@
                 <span class="text-xs font-semibold text-[#4c739a] uppercase tracking-wider mb-1">Total Savings</span>
                 <span class="text-2xl font-black text-green-600">-67%</span>
               </div>
+            </div>
+            <!-- LIst of elements compressed -->
+            <div class="border-t border-[#e7edf3] dark:border-slate-800 p-8 space-y-8">
+              <h3 class="text-[#0d141b] dark:text-white text-lg font-bold mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary" data-icon="tune">image</span>
+                Uploaded Images
+              </h3>
+              <ul id="uploadedFilesList" class="bg-gray-100 py-4 px-4 rounded-md">
+
+              </ul> 
             </div>
             <!-- Live Preview Split-Pane -->
             <div>
@@ -187,9 +210,10 @@
             </div>
             <div class="flex flex-col sm:flex-row gap-4 pt-4">
               <button
+                id="compressButton"
                 class="flex-1 flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-6 bg-primary text-white text-lg font-black leading-normal tracking-[0.015em] hover:bg-blue-600 transition-colors shadow-lg shadow-primary/20">
                 <span class="material-symbols-outlined mr-2" data-icon="download">download</span>
-                Download Optimized Image
+                Compress Images
               </button>
               <button
                 class="flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-6 bg-[#e7edf3] dark:bg-slate-800 text-[#0d141b] dark:text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-[#cfdbe7] dark:hover:bg-slate-700 transition-colors">
@@ -279,6 +303,9 @@
     </div>
   </main>
   <?php include './includes/footer.php'; ?>
+  <script src="./js/uploadAndShow.js" defer></script>
+  <script src="./js/buttons-group.js" defer></script>
+  <script src="./js/compress.js"></script>
 </body>
 
 </html>
