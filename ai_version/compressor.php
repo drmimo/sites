@@ -163,9 +163,9 @@
             <div class="border-t border-[#e7edf3] dark:border-slate-800 p-8 space-y-8">
               <h3 class="text-[#0d141b] dark:text-white text-lg font-bold mb-4 flex items-center gap-2">
                 <span class="material-symbols-outlined text-primary" data-icon="tune">image</span>
-                Uploaded Images
+                Resulted Images
               </h3>
-              <ul id="uploadedFilesList" class="bg-gray-100 py-4 px-4 rounded-md">
+              <ul id="resultedFilesList" class="bg-gray-100 py-4 px-4 rounded-md">
 
               </ul> 
             </div>
@@ -303,6 +303,7 @@
     </div>
   </main>
   <?php include './includes/footer.php'; ?>
+  <script src="./js/atomic-functions.js"></script>
   <script src="./js/uploadAndShow.js" defer></script>
   <script src="./js/buttons-group.js" defer></script>
   <script src="./js/compress.js"></script>

@@ -8,7 +8,7 @@ inputElement.addEventListener('change', (ev)=>{
     showUploadedFiles(uploadedImages)
 });
 
-function createListItem(file, ...icons){
+function createListItem(name, file, ...icons){
     const listItem =  document.createElement('li')
     listItem.classList.add("fileItem", "py-2", "px-4", "my-2", "bg-white", "rounded-md", "flex", "items-center", "gap-2", "relative")
 
@@ -20,7 +20,7 @@ function createListItem(file, ...icons){
 
     const fileName = document.createElement('span')
     fileName.classList.add("flex-1")
-    fileName.innerText = file.name
+    fileName.innerText = name
     listItem.appendChild(fileName)
 
     if(icons.includes('close')){
@@ -38,8 +38,8 @@ function createListItem(file, ...icons){
         const link = document.createElement('a');
         link.classList.add("size-8", "rounded-full", "text-white", "bg-primary", "flex", "justify-center", "items-center", "hover:bg-primary-dark")
         link.innerHTML = '<span class="material-symbols-outlined">download</span>'
-        link.href = "#";
-        link.download = file.name;
+        link.href = URL.createObjectURL(file);
+        link.download = name;
         listItem.appendChild(link)
     }
     
@@ -49,7 +49,7 @@ function createListItem(file, ...icons){
 function showUploadedFiles(filesList){
     const uploadedFilesListElement = document.querySelector("#uploadedFilesList")
     for(const file of filesList){
-        uploadedFilesListElement.appendChild(createListItem(file, 'close'))
+        uploadedFilesListElement.appendChild(createListItem(null, file, 'close'))
     }
 }
 
